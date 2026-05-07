@@ -73,6 +73,22 @@ python manage.py runserver
 
 ## Roles del sistema
 
+### Administrador
+
+Usuario:
+
+```text
+admin1
+```
+
+Contraseña:
+
+```text
+12345
+```
+
+---
+
 ### Docente
 
 Usuario:
@@ -104,7 +120,3 @@ ky12345*
 ```
 
 ---
-
-## Autor
-
-Kevin Yamid Agreda Pianda
