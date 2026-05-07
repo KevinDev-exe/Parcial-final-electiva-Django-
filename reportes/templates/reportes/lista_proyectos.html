@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Proyectos</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .filters { background-color: #f9f9f9; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; }
+        .btn { padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-success { background-color: #28a745; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header-actions">
+        <h1>Reporte de Proyectos</h1>
+        <div>
+            <a href="{% url 'reportes:exportar_csv' %}?estado={{ estado_filtro }}&estudiante={{ estudiante_filtro }}" class="btn btn-success">
+                Exportar CSV
+            </a>
+            <button onclick="window.print()" class="btn" style="background-color: #6c757d; margin-left: 10px;">
+                Exportar PDF (Imprimir)
+            </button>
+        </div>
+    </div>
+
+    <div class="filters">
+        <form method="GET">
+            <label for="estado">Estado:</label>
+            <select name="estado" id="estado">
+                <option value="">Todos</option>
+                {% for key, value in estados %}
+                    <option value="{{ key }}" {% if estado_filtro == key %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="estudiante">Estudiante:</label>
+            <input type="text" name="estudiante" id="estudiante" value="{{ estudiante_filtro }}" placeholder="Nombre de usuario...">
+
+            <button type="submit" class="btn">Filtrar</button>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Estudiante</th>
+                <th>Estado</th>
+                <th>Calificación</th>
+                <th>Fecha de Envío</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proyecto in proyectos %}
+            <tr>
+                <td>{{ proyecto.titulo }}</td>
+                <td>{{ proyecto.estudiante.username }}</td>
+                <td>{{ proyecto.get_estado_display }}</td>
+                <td>{{ proyecto.calificacion|default_if_none:"N/A" }}</td>
+                <td>{{ proyecto.fecha_envio|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No se encontraron proyectos.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
