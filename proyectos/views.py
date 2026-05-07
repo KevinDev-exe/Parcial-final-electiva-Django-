@@ -30,8 +30,26 @@ class ProyectoCreateView(LoginRequiredMixin, CreateView):
     template_name = 'proyectos/form.html'
     success_url = reverse_lazy('proyectos:list')
 
+    def dispatch(self, request, *args, **kwargs):
+
+        # SOLO ESTUDIANTE CREA
+
+        if not request.user.groups.filter(
+            name='Estudiante'
+        ).exists():
+
+            return self.handle_no_permission()
+
+        return super().dispatch(
+            request,
+            *args,
+            **kwargs
+        )
+
     def form_valid(self, form):
+
         form.instance.estudiante = self.request.user
+
         return super().form_valid(form)
 
 
@@ -62,9 +80,34 @@ class ProyectoUpdateView(LoginRequiredMixin, UpdateView):
 
 # ELIMINAR PROYECTO
 class ProyectoDeleteView(LoginRequiredMixin, DeleteView):
+
     model = Proyecto
     template_name = 'proyectos/delete.html'
     success_url = reverse_lazy('proyectos:list')
+
+    def dispatch(self, request, *args, **kwargs):
+
+        proyecto = self.get_object()
+
+        # SOLO ESTUDIANTE
+
+        if not request.user.groups.filter(
+            name='Estudiante'
+        ).exists():
+
+            return self.handle_no_permission()
+
+        # SOLO SU PROYECTO
+
+        if proyecto.estudiante != request.user:
+
+            return self.handle_no_permission()
+
+        return super().dispatch(
+            request,
+            *args,
+            **kwargs
+        )
 
 
 # DETALLE PROYECTO
