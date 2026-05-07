@@ -1,29 +1,32 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import Group
 from django.contrib import messages
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
-
-from .forms import RegistroUsuarioForm
-
-
-@login_required
-def home(request):
-    grupo = request.user.groups.first()
-    return render(request, 'home.html', {'rol': grupo.name if grupo else 'Sin rol'})
+from .forms import RegistroForm
+from .models import Perfil
 
 
 def registro(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-
     if request.method == 'POST':
-        form = RegistroUsuarioForm(request.POST)
+        form = RegistroForm(request.POST)
         if form.is_valid():
             user = form.save()
+            rol = form.cleaned_data['rol']
+
+            # Crear o asignar grupo
+            grupo, _ = Group.objects.get_or_create(name=rol)
+            user.groups.add(grupo)
+
+            # Crear perfil
+            Perfil.objects.create(usuario=user, rol=rol)
+
             login(request, user)
-            messages.success(request, 'Registro exitoso.')
+            messages.success(request, f'Cuenta creada como {rol}.')
             return redirect('home')
     else:
-        form = RegistroUsuarioForm()
+        form = RegistroForm()
+    return render(request, 'usuarios/registro.html', {'form': form})
 
-    return render(request, 'registro.html', {'form': form})
+
+def home(request):
+    return render(request, 'home.html')
