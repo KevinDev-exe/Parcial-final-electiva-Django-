@@ -12,15 +12,23 @@ from .forms import ComentarioForm
 @login_required
 def crear_comentario(request, proyecto_id):
 
-    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    proyecto = get_object_or_404(
+        Proyecto,
+        id=proyecto_id
+    )
 
-    # Validar si el proyecto ya está aprobado
+    # Bloquear comentarios si el proyecto está aprobado
     if proyecto.estado == 'aprobado':
+
         messages.error(
             request,
             'No se pueden agregar comentarios a un proyecto aprobado.'
         )
-        return redirect('proyectos:detail', pk=proyecto.id)
+
+        return redirect(
+            'proyectos:detail',
+            pk=proyecto.id
+        )
 
     comentarios = Comentario.objects.filter(
         proyecto=proyecto
@@ -43,6 +51,7 @@ def crear_comentario(request, proyecto_id):
             # Enviar correo al estudiante
             send_mail(
                 subject='Nuevo comentario en tu proyecto',
+
                 message=f'''
 Hola {proyecto.estudiante.username},
 
@@ -56,13 +65,24 @@ Fecha:
                 ''',
 
                 from_email='admin@gmail.com',
-                recipient_list=[proyecto.estudiante.email],
-                fail_silently=True,
+
+                recipient_list=[
+                    proyecto.estudiante.email
+                ],
+
+                fail_silently=False,
             )
 
+            # Mensaje emergente en pantalla
             messages.success(
                 request,
-                'Comentario agregado correctamente.'
+
+                f'''
+Comentario agregado correctamente.
+
+Correo enviado a:
+{proyecto.estudiante.email}
+                '''
             )
 
             return redirect(
@@ -71,6 +91,7 @@ Fecha:
             )
 
     else:
+
         form = ComentarioForm()
 
     context = {
