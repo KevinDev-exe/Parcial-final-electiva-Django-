@@ -20,7 +20,7 @@ def crear_comentario(request, proyecto_id):
             request,
             'No se pueden agregar comentarios a un proyecto aprobado.'
         )
-        return redirect('detalle_proyecto', proyecto_id=proyecto.id)
+        return redirect('proyectos:detail', pk=proyecto.id)
 
     comentarios = Comentario.objects.filter(
         proyecto=proyecto

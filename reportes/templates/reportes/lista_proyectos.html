@@ -20,6 +20,7 @@
     <div class="header-actions">
         <h1>Reporte de Proyectos</h1>
         <div>
+            <a href="{% url 'proyectos:list' %}" class="btn" style="background-color: #17a2b8;">Volver</a>
             <a href="{% url 'reportes:exportar_csv' %}?estado={{ estado_filtro }}&estudiante={{ estudiante_filtro }}" class="btn btn-success">
                 Exportar CSV
             </a>

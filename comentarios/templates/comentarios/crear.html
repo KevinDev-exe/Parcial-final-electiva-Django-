@@ -1,39 +1,40 @@
-<h1>Comentarios del Proyecto</h1>
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
 
-<h2>{{ proyecto.titulo }}</h2>
-
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <button type="submit">
-        Agregar comentario
-    </button>
-</form>
-
-<hr>
-
-<h3>Lista de comentarios</h3>
-
-{% for comentario in comentarios %}
-
-    <div>
-        <strong>{{ comentario.usuario }}</strong>
-        <br>
-
-        {{ comentario.texto }}
-
-        <br>
-
-        <small>
-            {{ comentario.fecha }}
-        </small>
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Comentarios del Proyecto: {{ proyecto.titulo }}</h2>
+        <a href="{% url 'proyectos:detail' proyecto.id %}" class="btn btn-secondary">Volver al Proyecto</a>
     </div>
 
-    <hr>
+    {% if proyecto.estado != 'aprobado' %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary mt-2">Agregar comentario</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+        <div class="alert alert-info">El proyecto está aprobado. No se permiten nuevos comentarios.</div>
+    {% endif %}
 
-{% empty %}
-
-<p>No hay comentarios.</p>
-
-{% endfor %}
+    <h3>Lista de comentarios</h3>
+    <div class="list-group">
+        {% for comentario in comentarios %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ comentario.usuario.username }}</h5>
+                    <small>{{ comentario.fecha }}</small>
+                </div>
+                <p class="mb-1">{{ comentario.texto }}</p>
+            </div>
+        {% empty %}
+            <p>No hay comentarios.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

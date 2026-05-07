@@ -2,13 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import Group
 from django.contrib import messages
-from .forms import RegistroForm
+from .forms import RegistroUsuarioForm
 from .models import Perfil
 
 
 def registro(request):
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
+        form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
             user = form.save()
             rol = form.cleaned_data['rol']
@@ -24,8 +24,8 @@ def registro(request):
             messages.success(request, f'Cuenta creada como {rol}.')
             return redirect('home')
     else:
-        form = RegistroForm()
-    return render(request, 'usuarios/registro.html', {'form': form})
+        form = RegistroUsuarioForm()
+    return render(request, 'registro.html', {'form': form})
 
 
 def home(request):

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Detalle del Proyecto: {{ proyecto.titulo }}</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Estudiante: {{ proyecto.estudiante.username }}</h5>
+            <p class="card-text"><strong>Descripción:</strong> {{ proyecto.descripcion }}</p>
+            <p class="card-text"><strong>Estado:</strong> {{ proyecto.get_estado_display }}</p>
+            <p class="card-text"><strong>Calificación:</strong> {{ proyecto.calificacion|default_if_none:"N/A" }}</p>
+            <p class="card-text"><strong>Fecha de Envío:</strong> {{ proyecto.fecha_envio }}</p>
+            {% if proyecto.documento %}
+                <p class="card-text"><strong>Documento:</strong> <a href="{{ proyecto.documento.url }}" target="_blank">Ver archivo</a></p>
+            {% endif %}
+            <a href="{% url 'proyectos:list' %}" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </div>
+
+    <h3>Comentarios</h3>
+    {% if proyecto.estado == 'aprobado' %}
+        <div class="alert alert-info">Este proyecto está aprobado. No se pueden agregar más comentarios.</div>
+        <a href="{% url 'crear_comentario' proyecto.id %}" class="btn btn-secondary mb-3">Ver Comentarios</a>
+    {% else %}
+        <a href="{% url 'crear_comentario' proyecto.id %}" class="btn btn-primary mb-3">Agregar / Ver Comentarios</a>
+    {% endif %}
+    
+    <div class="list-group">
+        {% for comentario in proyecto.comentarios.all|dictsortreversed:"fecha" %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ comentario.usuario.username }}</h5>
+                    <small>{{ comentario.fecha }}</small>
+                </div>
+                <p class="mb-1">{{ comentario.texto }}</p>
+            </div>
+        {% empty %}
+            <p>No hay comentarios aún.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,8 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Proyecto
-from .forms import ProyectoForm
+from .forms import ProyectoForm, ProyectoEvaluarForm
+from django.utils import timezone
 
 
 # LISTAR PROYECTOS
@@ -34,21 +35,29 @@ class ProyectoCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# EDITAR PROYECTO
 class ProyectoUpdateView(LoginRequiredMixin, UpdateView):
     model = Proyecto
-    form_class = ProyectoForm
     template_name = 'proyectos/form.html'
     success_url = reverse_lazy('proyectos:list')
+
+    def get_form_class(self):
+        if self.request.user.groups.filter(name='Docente').exists():
+            return ProyectoEvaluarForm
+        return ProyectoForm
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
 
-        # solo dueño puede editar
-        if obj.estudiante != request.user:
+        # estudiante solo puede editar si es su proyecto
+        if request.user.groups.filter(name='Estudiante').exists() and obj.estudiante != request.user:
             return self.handle_no_permission()
 
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if self.request.user.groups.filter(name='Docente').exists():
+            form.instance.fecha_revision = timezone.now()
+        return super().form_valid(form)
 
 
 # ELIMINAR PROYECTO
