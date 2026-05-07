@@ -3,8 +3,13 @@
 {% block content %}
 <div class="container mt-4">
     <h2>Lista de Proyectos</h2>
-    <a href="{% url 'proyectos:create' %}" class="btn btn-primary mb-3">Crear Proyecto</a>
-    
+    {% if request.user.groups.all.0.name == 'Estudiante' %}
+
+    <a href="{% url 'proyectos:create' %}" class="btn btn-primary">
+        Crear Proyecto
+    </a>
+
+{% endif %}
     <table class="table">
         <thead>
             <tr>
