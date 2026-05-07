@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Panel de Control</h4>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <h2 class="card-title">Bienvenido, {{ user.username }}</h2>
+                        <p class="card-text fs-5">
+                            Rol: 
+                            <strong>
+                                {% if user.is_superuser %}
+                                    Administrador
+                                {% elif user.groups.all %}
+                                    {{ user.groups.all.0.name }}
+                                {% else %}
+                                    Sin rol asignado
+                                {% endif %}
+                            </strong>
+                        </p>
+                        <hr>
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                            <a href="{% url 'proyectos:list' %}" class="btn btn-outline-primary btn-lg px-4">Ir a Proyectos</a>
+                            <a href="{% url 'reportes:lista' %}" class="btn btn-outline-success btn-lg px-4">Ir a Reportes</a>
+                            {% if user.is_superuser %}
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline-dark btn-lg px-4">Administración</a>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <h2 class="card-title">Bienvenido al Sistema</h2>
+                        <p class="card-text">Por favor, inicie sesión o regístrese para continuar.</p>
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4">Iniciar Sesión</a>
+                            <a href="{% url 'registro' %}" class="btn btn-secondary btn-lg px-4">Registrarse</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
